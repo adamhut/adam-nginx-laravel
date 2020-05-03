@@ -1,0 +1,73 @@
+version: '3'
+
+services: 
+  app: 
+    image: laravel-nginx-www
+    container_name: laravel-nginx-www
+    depends_on: 
+      - mysql
+      - redis
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile
+    env_file: 
+      - .docker.env
+    environment: 
+      CONTAINER_ROLE: app
+      # APP_ENV: production
+    volumes: 
+      - .:/var/www/html
+    ports:
+      - 8080:80
+  scheduler:
+    image: laravel-nginx-www
+    container_name: laravel-nginx-scheduler
+    env_file: 
+      - .docker.env
+    volumes: 
+      - .:/var/www/html
+    environment: 
+      CONTAINER_ROLE: scheduler
+    depends_on: 
+      - app
+      - mysql
+      - redis
+  queue:
+    image: laravel-nginx-www
+    container_name: laravel-nginx-queue
+    env_file: 
+      - .docker.env
+    volumes: 
+      - .:/var/www/html
+    environment: 
+      CONTAINER_ROLE: queue
+    depends_on: 
+      - app
+      - mysql
+      - redis
+  mysql:
+    container_name: laravel-nginx-mysql
+    image: mysql:5.7
+    volumes:
+     - mysqldata:/var/lib/mysql
+    environment: 
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+    ports: 
+      - 13306:3306
+
+  redis:
+    container_name: laravel-nginx-redis
+    image: redis:5.0-alpine
+    ports:
+      - 16379:6379
+    volumes: 
+      - redis:/data
+
+volumes: 
+  mysqldata:
+    driver: local
+  redis:
+    driver: local
