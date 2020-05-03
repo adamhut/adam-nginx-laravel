@@ -21,15 +21,20 @@ RUN apt-get update -yqq \
 # copy the current folder to docker location
 ADD . /var/www/html
 
-# add xdebug config into docker 
+# PHP 
+## add xdebug config into docker 
 ADD docker/config/php/conf.d/*.ini /usr/local/etc/php/conf.d/
-# ADD the php ini file into contianer
+## ADD the php ini file into contianer
 ADD docker/config/php/php.ini /usr/local/etc/php/php.ini
+ADD docker/config/php/php-fpm.d/docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
+# supervisor
 ADD docker/config/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+ADD docker/config/supervisor/conf.d/*.conf /etc/supervisor/conf.d-available/
+
+# Nginx
 ADD docker/config/nginx/default /etc/nginx/sites-available/default
 ADD docker/config/nginx/h5bp/ /etc/nginx/h5bp
-ADD docker/config/php/php-fpm.d/docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
 ADD docker/start.sh /usr/local/bin/start
 
